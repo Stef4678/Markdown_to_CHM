@@ -13,6 +13,7 @@ import {
 	removeDirRecursive,
 } from "../src/util/paths";
 import { appUrlToVaultPath } from "../src/export/renderer";
+import { assetToken, rewriteAssetPlaceholders } from "../src/export/assets";
 import {
 	generateHhc,
 	generateHhk,
@@ -99,6 +100,87 @@ check(
 check(
 	"ignores non-app URLs",
 	appUrlToVaultPath("https://example.com/a.png", "C:\\Vault") === null
+);
+
+// ---------------------------------------------------------------------
+section("asset placeholders");
+
+// Regression: the token used to embed the raw vault path, and the cleanup pass
+// dropped anything that looked like a placeholder only up to the first space.
+// An image under "Evernote Visuals" was rewritten as ` Visuals/…` — the leading
+// segment eaten, the rest left as garbage — so no image ever rendered in the CHM.
+const spacedAsset = "Evernote Visuals/attachments/1-b667e325.png";
+const spacedToken = assetToken(spacedAsset);
+
+check(
+	"a spaced vault path yields a token with no whitespace",
+	!/\s/.test(spacedToken),
+	spacedToken
+);
+check(
+	"a spaced vault path yields a token with no quote",
+	!/["']/.test(spacedToken),
+	spacedToken
+);
+check(
+	"the token is recoverable for a path with spaces",
+	rewriteAssetPlaceholders(
+		`<img src="${spacedToken}">`,
+		new Map([[spacedAsset, "assets/Evernote_Visuals/attachments/1-b667e325.png"]])
+	) === '<img src="assets/Evernote_Visuals/attachments/1-b667e325.png">'
+);
+check(
+	"the token is recoverable for a path with an apostrophe",
+	rewriteAssetPlaceholders(
+		`<img src="${assetToken("Notes/Bob's photo.png")}">`,
+		new Map([["Notes/Bob's photo.png", "assets/Notes/Bobs_photo.png"]])
+	) === '<img src="assets/Notes/Bobs_photo.png">'
+);
+check(
+	"the token survives being read back out of the HTML",
+	rewriteAssetPlaceholders(
+		`<a href="${assetToken("Guides/My Notes.md")}">x</a>`,
+		new Map([["Guides/My Notes.md", "page_0002.html"]])
+	) === '<a href="page_0002.html">x</a>'
+);
+check(
+	"an unresolvable placeholder takes its whole attribute with it",
+	rewriteAssetPlaceholders(`<img src="${spacedToken}">`, new Map()) === "<img>"
+);
+check(
+	"an unresolvable placeholder leaves no token behind",
+	!rewriteAssetPlaceholders(
+		`<img src="${spacedToken}">`,
+		new Map()
+	).includes("__ASSET__")
+);
+check(
+	"an unresolvable placeholder leaves nothing of the vault path behind",
+	!rewriteAssetPlaceholders(
+		`<img src="${spacedToken}">`,
+		new Map()
+	).includes("Visuals")
+);
+check(
+	"only the offending attribute is dropped",
+	rewriteAssetPlaceholders(
+		`<img alt="Octopus" src="${spacedToken}">`,
+		new Map()
+	) === '<img alt="Octopus">'
+);
+check(
+	"text after a dropped placeholder is not eaten with it",
+	rewriteAssetPlaceholders(
+		`<img src="${spacedToken}"><p>Caption</p>`,
+		new Map()
+	) === "<img><p>Caption</p>"
+);
+check(
+	"a placeholder that was resolved survives the cleanup pass",
+	rewriteAssetPlaceholders(
+		`<img src="${spacedToken}" alt="Octopus">`,
+		new Map([[spacedAsset, "assets/Evernote_Visuals/attachments/1-b667e325.png"]])
+	) === '<img src="assets/Evernote_Visuals/attachments/1-b667e325.png" alt="Octopus">'
 );
 
 // ---------------------------------------------------------------------

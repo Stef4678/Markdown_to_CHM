@@ -1,4 +1,5 @@
 import { App, Component, MarkdownRenderer, TFile } from "obsidian";
+import { assetToken } from "./assets";
 
 /**
  * Renders notes through Obsidian's own MarkdownRenderer so wikilinks, embeds,
@@ -87,6 +88,48 @@ export function appUrlToVaultPath(
 		return normalised.slice(base.length + 1).replace(/\\/g, "/");
 	}
 	return null;
+}
+
+/** Sources the CHM viewer loads for itself, so they are left as they are. */
+function isExternalSource(value: string): boolean {
+	return /^(https?:|data:|mailto:|file:|#)/i.test(value);
+}
+
+/**
+ * Resolve a media source to a vault path, or null when it is not a vault file.
+ *
+ * Obsidian hands wikilink embeds back as `app://` URLs, but a plain markdown
+ * image — `![](attachments/photo.png)` — keeps its path exactly as the note
+ * wrote it, so it has to be resolved against that note the way Obsidian resolves
+ * a link. Without this those images were never collected, never copied, and
+ * never listed in the project, so they were missing from the CHM entirely.
+ */
+function resolveVaultPath(
+	ctx: RenderContext,
+	value: string,
+	sourcePath: string
+): string | null {
+	const fromApp = appUrlToVaultPath(value, ctx.vaultBasePath);
+	if (fromApp) return fromApp;
+
+	let linkpath = value;
+	const hash = linkpath.indexOf("#");
+	if (hash >= 0) linkpath = linkpath.slice(0, hash);
+	const query = linkpath.indexOf("?");
+	if (query >= 0) linkpath = linkpath.slice(0, query);
+	if (linkpath.length === 0) return null;
+
+	try {
+		linkpath = decodeURIComponent(linkpath);
+	} catch {
+		// A malformed escape is not worth abandoning the export over.
+	}
+
+	const target = ctx.app.metadataCache.getFirstLinkpathDest(
+		linkpath,
+		sourcePath
+	);
+	return target ? target.path : null;
 }
 
 /** Strip Obsidian-specific markup that the CHM viewer cannot use. */
@@ -192,14 +235,15 @@ export async function renderNote(
 	host.querySelectorAll("img, source, video, audio, object, embed").forEach((node) => {
 		for (const attr of ["src", "data"]) {
 			const value = node.getAttribute(attr);
-			if (!value || !value.startsWith("app://")) continue;
+			if (!value || isExternalSource(value)) continue;
 
-			const vaultPath = appUrlToVaultPath(value, ctx.vaultBasePath);
+			const vaultPath = resolveVaultPath(ctx, value, file.path);
 			if (vaultPath) {
 				assetRefs.push(vaultPath);
 				// Replaced with a real relative path once assets are copied.
-				node.setAttribute(attr, `__ASSET__${vaultPath}`);
-			} else {
+				node.setAttribute(attr, assetToken(vaultPath));
+			} else if (value.startsWith("app://")) {
+				// An app:// URL means nothing once it leaves Obsidian.
 				node.removeAttribute(attr);
 			}
 		}
@@ -213,7 +257,7 @@ export async function renderNote(
 			const vaultPath = appUrlToVaultPath(href, ctx.vaultBasePath);
 			if (vaultPath) {
 				assetRefs.push(vaultPath);
-				node.setAttribute("href", `__ASSET__${vaultPath}`);
+				node.setAttribute("href", assetToken(vaultPath));
 				node.removeAttribute("data-href");
 				return;
 			}
