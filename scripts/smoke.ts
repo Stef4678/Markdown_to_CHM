@@ -12,7 +12,7 @@ import {
 	createStagingDir,
 	removeDirRecursive,
 } from "../src/util/paths";
-import { appUrlToVaultPath } from "../src/export/renderer";
+import { appUrlToVaultPath, resolveRelative } from "../src/export/renderer";
 import { assetToken, rewriteAssetPlaceholders } from "../src/export/assets";
 import {
 	generateHhc,
@@ -100,6 +100,36 @@ check(
 check(
 	"ignores non-app URLs",
 	appUrlToVaultPath("https://example.com/a.png", "C:\\Vault") === null
+);
+
+// ---------------------------------------------------------------------
+section("resolveRelative");
+
+// Regression: `![](attachments/photo.png)` is relative to the note that wrote
+// it, which is the shape Obsidian's own exports use. Without resolving it
+// against the note's folder the image was never collected or copied at all.
+const OCTO = "Evernote Visuals/Octopus---Encyclopedia/Octopus.md";
+check(
+	"resolves a path beside the note's own attachments",
+	resolveRelative("attachments/1-b667e325.png", OCTO) ===
+		"Evernote Visuals/Octopus---Encyclopedia/attachments/1-b667e325.png"
+);
+check(
+	"resolves a path from a note at the vault root",
+	resolveRelative("attachments/img.png", "Note.md") === "attachments/img.png"
+);
+check(
+	"climbs out of the note's folder",
+	resolveRelative("../shared/img.png", "Guides/Setup/Note.md") ===
+		"Guides/shared/img.png"
+);
+check(
+	"collapses a leading ./",
+	resolveRelative("./img.png", "Guides/Note.md") === "Guides/img.png"
+);
+check(
+	"refuses to climb past the vault root",
+	resolveRelative("../../../escape.png", "Guides/Note.md") === null
 );
 
 // ---------------------------------------------------------------------

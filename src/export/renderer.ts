@@ -96,6 +96,31 @@ function isExternalSource(value: string): boolean {
 }
 
 /**
+ * Join a vault-relative link path onto the folder of the note that wrote it,
+ * collapsing `.` and `..` segments. Returns null if it climbs out of the vault.
+ */
+export function resolveRelative(
+	linkpath: string,
+	sourcePath: string
+): string | null {
+	const slash = sourcePath.lastIndexOf("/");
+	const base = slash < 0 ? "" : sourcePath.slice(0, slash);
+
+	const segments = base.length > 0 ? base.split("/") : [];
+	for (const part of linkpath.split("/")) {
+		if (part.length === 0 || part === ".") continue;
+		if (part === "..") {
+			if (segments.length === 0) return null;
+			segments.pop();
+			continue;
+		}
+		segments.push(part);
+	}
+
+	return segments.length > 0 ? segments.join("/") : null;
+}
+
+/**
  * Resolve a media source to a vault path, or null when it is not a vault file.
  *
  * Obsidian hands wikilink embeds back as `app://` URLs, but a plain markdown
@@ -129,7 +154,20 @@ function resolveVaultPath(
 		linkpath,
 		sourcePath
 	);
-	return target ? target.path : null;
+	if (target) return target.path;
+
+	// A markdown image path is relative to the note that wrote it, and the link
+	// cache does not always place it. `![](attachments/photo.png)` beside the
+	// note's own attachments folder is the shape Obsidian itself exports, so it
+	// is resolved directly rather than left to the cache.
+	const relative = resolveRelative(linkpath, sourcePath);
+	if (relative) {
+		const file = ctx.app.vault.getAbstractFileByPath(relative);
+		if (file instanceof TFile) return file.path;
+	}
+
+	const atRoot = ctx.app.vault.getAbstractFileByPath(linkpath);
+	return atRoot instanceof TFile ? atRoot.path : null;
 }
 
 /** Strip Obsidian-specific markup that the CHM viewer cannot use. */
