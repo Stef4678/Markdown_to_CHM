@@ -8,6 +8,18 @@ a keyword index and full-text search, that opens in Windows without a browser or
 a server. That makes it a good fit for shipping user guides, API references and
 internal runbooks.
 
+## Screenshots
+
+The settings tab detects the CHM compiler for you and holds the defaults used by
+the export dialog:
+
+![Settings tab — the compiler is detected at C:\Program Files (x86)\HTML Help Workshop\hhc.exe, with defaults for the title, output folder, table of contents and language](assets/settings.png)
+
+The build behaviour toggles sit below, including the option to keep the
+intermediate build files for debugging:
+
+![Settings tab — behaviour options: include attachments, generate the keyword index, open the CHM after building, and keep intermediate build files](assets/settings-options.png)
+
 ## Requirements
 
 **Windows only**, and it needs **HTML Help Workshop** — Microsoft's free CHM
