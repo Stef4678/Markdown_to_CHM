@@ -29,8 +29,13 @@ export const DEFAULT_SETTINGS: MdToChmSettings = {
 	language: "0x409 English (United States)",
 };
 
+// Microsoft retired the download page and pulled the installer from its servers
+// — the old link has 404'd since 2021, with no replacement published. This is the
+// Internet Archive's copy of Microsoft's own installer, which the plugin cannot
+// ship itself because the licence forbids redistribution. The README lists the
+// checksum to verify it against.
 const HHW_DOWNLOAD_URL =
-	"https://www.microsoft.com/en-us/download/details.aspx?id=21138";
+	"https://web.archive.org/web/20200918004813id_/https://download.microsoft.com/download/0/A/9/0A939EF6-E31C-430F-A3DF-DFAE7960D564/htmlhelp.exe";
 
 export class MdToChmSettingTab extends PluginSettingTab {
 	plugin: MdToChmPlugin;
@@ -105,9 +110,9 @@ export class MdToChmSettingTab extends PluginSettingTab {
 		if (this.detected === null && this.detectionDone) {
 			const help = containerEl.createDiv({ cls: "mdtoc-help" });
 			help.createEl("p", {
-				text: "HTML Help Workshop is required and was not found on this system.",
+				text: "HTML Help Workshop is required and was not found on this system. Microsoft no longer distributes it, so the link below opens the Internet Archive's copy of Microsoft's own installer; the README lists the checksum to check it against.",
 			});
-			const link = help.createEl("a", { text: "Download HTML Help Workshop" });
+			const link = help.createEl("a", { text: "Download the installer" });
 			link.href = HHW_DOWNLOAD_URL;
 			help.createEl("p", {
 				text: "After installing, set the path above to the hhc.exe inside the install folder (typically C:\\Program Files (x86)\\HTML Help Workshop\\hhc.exe).",

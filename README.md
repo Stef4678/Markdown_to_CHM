@@ -22,11 +22,31 @@ intermediate build files for debugging:
 
 ## Requirements
 
-**Windows only**, and it needs **HTML Help Workshop** — Microsoft's free CHM
-compiler (`hhc.exe`). It is not bundled with the plugin.
+**Windows only**, and it needs **HTML Help Workshop** — Microsoft's CHM compiler
+(`hhc.exe`). It is not bundled with the plugin.
 
-1. Download HTML Help Workshop:
-   <https://www.microsoft.com/en-us/download/details.aspx?id=21138>
+> **Microsoft no longer distributes it.** The download page was retired and the
+> installer pulled from Microsoft's servers — the link has returned 404 since
+> 2021, and no replacement has been published. The plugin cannot ship the
+> installer itself, because Microsoft's licence does not permit redistributing it.
+
+1. Download Microsoft's original installer (3.4 MB) from the Internet Archive's
+   copy of it:
+   <https://web.archive.org/web/20200918004813id_/https://download.microsoft.com/download/0/A/9/0A939EF6-E31C-430F-A3DF-DFAE7960D564/htmlhelp.exe>
+
+   Check it before running it. The copy above is genuine if its MD5 is
+   `53899be5da83419d772d5b97e653da7c` and its Authenticode signature is `Valid`,
+   signed by *Microsoft Corporation*:
+
+   ```
+   Get-FileHash .\htmlhelp.exe -Algorithm MD5
+   Get-AuthenticodeSignature .\htmlhelp.exe | Select Status, SignerCertificate
+   ```
+
+   If either check fails, delete the file — it is not Microsoft's installer.
+
+   On Chocolatey, `choco install html-help-workshop` fetches the same archived
+   installer and verifies its checksum for you.
 2. Install it (the default location is fine).
 3. In Obsidian, open **Settings → Markdown to CHM**. The compiler should be
    detected automatically and shown as **Found**.
