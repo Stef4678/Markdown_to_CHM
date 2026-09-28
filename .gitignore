@@ -1,0 +1,8 @@
+node_modules/
+main.js
+scripts/smoke.cjs
+*.log
+.DS_Store
+
+# Machine-specific tooling config (absolute paths to this machine).
+.claude/settings.local.json

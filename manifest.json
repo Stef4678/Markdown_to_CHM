@@ -1,0 +1,9 @@
+{
+	"id": "md-to-chm",
+	"name": "Markdown to CHM",
+	"version": "1.0.0",
+	"minAppVersion": "1.4.0",
+	"description": "Export one or many notes, with their attachments, into a single offline Compiled HTML Help (.chm) file.",
+	"author": "md-to-chm",
+	"isDesktopOnly": true
+}

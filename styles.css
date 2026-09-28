@@ -1,0 +1,868 @@
+/* ------------------------------------------------------------------
+   Markdown to CHM — export dialog and settings styling.
+
+   Everything is driven by Obsidian's theme variables so the UI matches
+   whatever light or dark theme the user runs.
+   ------------------------------------------------------------------ */
+
+.mdtoc-modal,
+.mdtoc-picker-modal {
+	--mdtoc-gap: 22px;
+	--mdtoc-radius: var(--radius-m, 8px);
+}
+
+/* Obsidian sizes the modal box itself from these variables — --dialog-width
+   is 560px by default, which is narrower than this dialog's three-column
+   content. Setting them here is what actually widens the window; a width on
+   .modal-content only overflows the box and gets clipped on the right. */
+.mdtoc-modal {
+	--dialog-width: min(940px, 94vw);
+	--dialog-max-width: min(940px, 94vw);
+	--dialog-max-height: 90vh;
+}
+
+.mdtoc-modal .modal-content.mdtoc-root {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	padding: 0;
+	width: 100%;
+	max-height: 85vh;
+	overflow: hidden;
+}
+
+/* Header ----------------------------------------------------------- */
+
+.mdtoc-header {
+	padding: 22px 26px 16px 26px;
+	border-bottom: 1px solid var(--background-modifier-border);
+	flex: 0 0 auto;
+}
+
+.mdtoc-title {
+	margin: 0 0 3px 0;
+	font-size: 19px;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	color: var(--text-normal);
+}
+
+.mdtoc-subtitle {
+	margin: 0;
+	font-size: 13px;
+	color: var(--text-muted);
+	line-height: 1.45;
+}
+
+/* Body ------------------------------------------------------------- */
+
+.mdtoc-body {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	padding: 4px 26px 8px 26px;
+}
+
+.mdtoc-section {
+	padding: var(--mdtoc-gap) 0;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.mdtoc-section:last-child {
+	border-bottom: none;
+}
+
+.mdtoc-section-title {
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--text-faint);
+	margin-bottom: 12px;
+}
+
+/* Segmented source control ----------------------------------------- */
+
+.mdtoc-segmented {
+	display: flex;
+	gap: 2px;
+	padding: 3px;
+	background: var(--background-secondary);
+	border-radius: var(--mdtoc-radius);
+	margin-bottom: 12px;
+}
+
+.mdtoc-seg-btn {
+	flex: 1 1 0;
+	min-width: 0;
+	padding: 7px 12px;
+	border: none;
+	background: transparent;
+	color: var(--text-muted);
+	font-size: 13px;
+	font-family: inherit;
+	border-radius: calc(var(--mdtoc-radius) - 3px);
+	cursor: pointer;
+	transition: background 120ms ease, color 120ms ease;
+	box-shadow: none;
+}
+
+.mdtoc-seg-btn:hover {
+	color: var(--text-normal);
+	background: var(--background-modifier-hover);
+}
+
+.mdtoc-seg-btn.is-active {
+	background: var(--background-primary);
+	color: var(--text-normal);
+	font-weight: 600;
+	box-shadow: var(--shadow-s, 0 1px 2px rgba(0, 0, 0, 0.12));
+}
+
+/* Source summary + file list --------------------------------------- */
+
+.mdtoc-source-summary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	min-height: 20px;
+	margin-bottom: 8px;
+}
+
+.mdtoc-stats {
+	font-size: 12px;
+	color: var(--text-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.mdtoc-linkbtn {
+	background: none;
+	border: none;
+	box-shadow: none;
+	color: var(--text-muted);
+	font-size: 12px;
+	font-family: inherit;
+	cursor: pointer;
+	padding: 2px 4px;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.mdtoc-linkbtn:hover {
+	color: var(--text-normal);
+	background: none;
+}
+
+.mdtoc-filelist {
+	max-height: 176px;
+	overflow-y: auto;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--mdtoc-radius);
+	background: var(--background-primary);
+}
+
+.mdtoc-filelist:empty {
+	display: none;
+}
+
+.mdtoc-filerow {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 10px;
+	font-size: 13px;
+	color: var(--text-normal);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.mdtoc-filerow:last-child {
+	border-bottom: none;
+}
+
+.mdtoc-filerow:hover {
+	background: var(--background-modifier-hover);
+}
+
+.mdtoc-filerow-icon {
+	display: flex;
+	color: var(--text-faint);
+	flex: 0 0 auto;
+}
+
+.mdtoc-filerow-icon svg {
+	width: 14px;
+	height: 14px;
+}
+
+.mdtoc-filerow-name {
+	flex: 1 1 auto;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mdtoc-filerow-remove {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: none;
+	border: none;
+	box-shadow: none;
+	padding: 2px;
+	color: var(--text-faint);
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+.mdtoc-filerow-remove:hover {
+	color: var(--text-normal);
+	background: var(--background-modifier-hover);
+}
+
+.mdtoc-filerow-remove svg {
+	width: 13px;
+	height: 13px;
+}
+
+.mdtoc-empty {
+	padding: 16px;
+	text-align: center;
+	font-size: 13px;
+	color: var(--text-faint);
+}
+
+.mdtoc-more {
+	padding: 6px 10px;
+	font-size: 12px;
+	color: var(--text-faint);
+	font-style: italic;
+}
+
+.mdtoc-hint {
+	margin-top: 8px;
+	font-size: 12px;
+	color: var(--text-faint);
+	line-height: 1.45;
+}
+
+.mdtoc-hint:empty {
+	display: none;
+}
+
+/* Fields ----------------------------------------------------------- */
+
+.mdtoc-field {
+	margin-bottom: 16px;
+}
+
+.mdtoc-field:last-child {
+	margin-bottom: 0;
+}
+
+.mdtoc-label {
+	display: block;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--text-normal);
+	margin-bottom: 6px;
+}
+
+.mdtoc-input,
+.mdtoc-select {
+	width: 100%;
+	font-family: inherit;
+	font-size: 13px;
+}
+
+.mdtoc-inputrow {
+	display: flex;
+	gap: 8px;
+	align-items: stretch;
+}
+
+.mdtoc-inputrow .mdtoc-input {
+	flex: 1 1 auto;
+}
+
+.mdtoc-browse-btn {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 38px;
+	padding: 0;
+	cursor: pointer;
+	color: var(--text-muted);
+}
+
+.mdtoc-browse-btn:hover {
+	color: var(--text-normal);
+}
+
+.mdtoc-browse-btn svg {
+	width: 16px;
+	height: 16px;
+}
+
+/* Inline folder shortcut list -------------------------------------- */
+
+.mdtoc-folderlist {
+	margin-top: 6px;
+	max-height: 168px;
+	overflow-y: auto;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--mdtoc-radius);
+	background: var(--background-secondary);
+}
+
+.mdtoc-folderitem {
+	padding: 6px 10px;
+	font-size: 12.5px;
+	color: var(--text-muted);
+	cursor: pointer;
+	border-bottom: 1px solid var(--background-modifier-border);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mdtoc-folderitem:last-child {
+	border-bottom: none;
+}
+
+.mdtoc-folderitem:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+/* Toggles ---------------------------------------------------------- */
+
+.mdtoc-toggle-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px 18px;
+}
+
+.mdtoc-toggle-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 9px;
+	cursor: pointer;
+	padding: 4px 0;
+}
+
+.mdtoc-toggle-row input[type="checkbox"] {
+	flex: 0 0 auto;
+	margin-top: 2px;
+	cursor: pointer;
+}
+
+.mdtoc-toggle-text {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	min-width: 0;
+}
+
+.mdtoc-toggle-label {
+	font-size: 13px;
+	color: var(--text-normal);
+	line-height: 1.35;
+}
+
+.mdtoc-toggle-desc {
+	font-size: 11.5px;
+	color: var(--text-faint);
+	line-height: 1.35;
+}
+
+/* Progress --------------------------------------------------------- */
+
+.mdtoc-progress {
+	border-bottom: none;
+}
+
+.mdtoc-bar {
+	height: 6px;
+	border-radius: 3px;
+	background: var(--background-secondary);
+	overflow: hidden;
+	margin-bottom: 9px;
+}
+
+.mdtoc-bar-fill {
+	height: 100%;
+	width: 0;
+	background: var(--interactive-accent);
+	border-radius: 3px;
+	transition: width 220ms ease;
+}
+
+.mdtoc-progress-text {
+	font-size: 12.5px;
+	color: var(--text-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+/* Build log -------------------------------------------------------- */
+
+.mdtoc-logwrap {
+	margin-top: 14px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--mdtoc-radius);
+	background: var(--background-secondary);
+}
+
+.mdtoc-logsummary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 7px 11px;
+	font-size: 12.5px;
+	color: var(--text-muted);
+	cursor: pointer;
+	list-style: none;
+}
+
+.mdtoc-logsummary::-webkit-details-marker {
+	display: none;
+}
+
+.mdtoc-logcopy {
+	font-size: 11.5px;
+	padding: 2px 8px;
+}
+
+.mdtoc-log {
+	border-top: 1px solid var(--background-modifier-border);
+	max-height: 200px;
+	overflow: auto;
+}
+
+.mdtoc-logpre {
+	margin: 0;
+	padding: 10px 12px;
+	font-family: var(--font-monospace);
+	font-size: 11.5px;
+	line-height: 1.55;
+	white-space: pre-wrap;
+	word-break: break-word;
+	background: transparent;
+	border: none;
+}
+
+.mdtoc-logline.is-warn {
+	color: var(--color-orange, #d29922);
+}
+
+.mdtoc-logline.is-error {
+	color: var(--color-red, #f85149);
+}
+
+.mdtoc-logline.is-success {
+	color: var(--color-green, #3fb950);
+}
+
+.mdtoc-logline.is-info {
+	color: var(--text-muted);
+}
+
+/* Result ----------------------------------------------------------- */
+
+.mdtoc-result {
+	border-left: 3px solid var(--background-modifier-border);
+	padding-left: 16px;
+	border-radius: 0 var(--mdtoc-radius) var(--mdtoc-radius) 0;
+}
+
+.mdtoc-result.is-success {
+	border-left-color: var(--color-green, #3fb950);
+	background: var(--background-secondary);
+}
+
+.mdtoc-result.is-failure {
+	border-left-color: var(--color-red, #f85149);
+	background: var(--background-secondary);
+}
+
+.mdtoc-result-heading {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--text-normal);
+	margin-bottom: 8px;
+}
+
+.mdtoc-result-icon {
+	display: flex;
+}
+
+.mdtoc-result.is-success .mdtoc-result-icon {
+	color: var(--color-green, #3fb950);
+}
+
+.mdtoc-result.is-failure .mdtoc-result-icon {
+	color: var(--color-red, #f85149);
+}
+
+.mdtoc-result-icon svg {
+	width: 17px;
+	height: 17px;
+}
+
+.mdtoc-result-message {
+	font-size: 12.5px;
+	color: var(--text-muted);
+	white-space: pre-wrap;
+	word-break: break-word;
+	line-height: 1.5;
+}
+
+.mdtoc-result-stats {
+	font-size: 12.5px;
+	color: var(--text-muted);
+	margin-bottom: 8px;
+	font-variant-numeric: tabular-nums;
+}
+
+.mdtoc-result-warn {
+	font-size: 12px;
+	color: var(--color-orange, #d29922);
+	margin-bottom: 8px;
+	line-height: 1.45;
+}
+
+.mdtoc-result-path {
+	font-family: var(--font-monospace);
+	font-size: 11.5px;
+	color: var(--text-faint);
+	word-break: break-all;
+	margin-bottom: 12px;
+	line-height: 1.5;
+}
+
+.mdtoc-result-actions {
+	display: flex;
+	gap: 8px;
+}
+
+/* Footer ----------------------------------------------------------- */
+
+.mdtoc-footer {
+	flex: 0 0 auto;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	padding: 14px 26px 18px 26px;
+	border-top: 1px solid var(--background-modifier-border);
+	background: var(--background-primary);
+}
+
+.mdtoc-validation {
+	flex: 1 1 auto;
+	font-size: 12px;
+	color: var(--text-faint);
+	line-height: 1.4;
+}
+
+.mdtoc-validation.is-error {
+	color: var(--color-orange, #d29922);
+}
+
+.mdtoc-actions {
+	display: flex;
+	gap: 8px;
+	flex: 0 0 auto;
+}
+
+.mdtoc-btn {
+	font-family: inherit;
+	font-size: 13px;
+	cursor: pointer;
+}
+
+.mdtoc-btn:disabled {
+	cursor: not-allowed;
+	opacity: 0.55;
+}
+
+/* ------------------------------------------------------------------
+   File picker modal
+   ------------------------------------------------------------------ */
+
+.mdtoc-picker-modal {
+	--dialog-width: min(760px, 94vw);
+	--dialog-max-width: min(760px, 94vw);
+	--dialog-max-height: 88vh;
+}
+
+.mdtoc-picker-modal .modal-content.mdtoc-picker {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 16px 18px;
+	max-height: 83vh;
+	width: 100%;
+}
+
+.mdtoc-picker-searchwrap {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 0 10px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--mdtoc-radius);
+	background: var(--background-primary);
+}
+
+.mdtoc-picker-searchicon {
+	display: flex;
+	color: var(--text-faint);
+	flex: 0 0 auto;
+}
+
+.mdtoc-picker-searchicon svg {
+	width: 15px;
+	height: 15px;
+}
+
+.mdtoc-picker-search {
+	flex: 1 1 auto;
+	border: none;
+	background: transparent;
+	box-shadow: none;
+	font-size: 13.5px;
+	font-family: inherit;
+	padding: 9px 0;
+	outline: none;
+}
+
+.mdtoc-picker-search:focus {
+	box-shadow: none;
+}
+
+.mdtoc-picker-list {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	min-height: 240px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--mdtoc-radius);
+}
+
+.mdtoc-picker-folder {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 6px 12px 4px 12px;
+	background: var(--background-secondary);
+	position: sticky;
+	top: 0;
+	z-index: 1;
+}
+
+.mdtoc-picker-foldername {
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--text-faint);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mdtoc-picker-folderbtn {
+	background: none;
+	border: none;
+	box-shadow: none;
+	font-size: 11px;
+	font-family: inherit;
+	color: var(--text-muted);
+	cursor: pointer;
+	padding: 1px 4px;
+}
+
+.mdtoc-picker-folderbtn:hover {
+	color: var(--text-normal);
+	background: none;
+	text-decoration: underline;
+}
+
+.mdtoc-picker-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 7px 12px;
+	cursor: pointer;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.mdtoc-picker-row:last-child {
+	border-bottom: none;
+}
+
+.mdtoc-picker-row:hover {
+	background: var(--background-modifier-hover);
+}
+
+.mdtoc-picker-check {
+	flex: 0 0 auto;
+	cursor: pointer;
+}
+
+.mdtoc-picker-rowtext {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	min-width: 0;
+}
+
+.mdtoc-picker-basename {
+	font-size: 13px;
+	color: var(--text-normal);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mdtoc-picker-rowpath {
+	font-size: 11px;
+	color: var(--text-faint);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.mdtoc-picker-empty {
+	padding: 34px 16px;
+	text-align: center;
+	font-size: 13px;
+	color: var(--text-faint);
+}
+
+.mdtoc-picker-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	flex: 0 0 auto;
+}
+
+.mdtoc-picker-count {
+	font-size: 12.5px;
+	color: var(--text-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+.mdtoc-picker-actions {
+	display: flex;
+	gap: 8px;
+}
+
+/* ------------------------------------------------------------------
+   Settings tab
+   ------------------------------------------------------------------ */
+
+.mdtoc-settings .mdtoc-wide-input {
+	width: 100%;
+	min-width: 320px;
+}
+
+.mdtoc-compiler-status {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 12px;
+	margin-bottom: 14px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--mdtoc-radius);
+	background: var(--background-secondary);
+	font-size: 12.5px;
+	flex-wrap: wrap;
+}
+
+.mdtoc-status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	flex: 0 0 auto;
+}
+
+.mdtoc-status-dot.is-ok {
+	background: var(--color-green, #3fb950);
+}
+
+.mdtoc-status-dot.is-missing {
+	background: var(--color-red, #f85149);
+}
+
+.mdtoc-status-label {
+	font-weight: 600;
+	color: var(--text-normal);
+}
+
+.mdtoc-status-path {
+	color: var(--text-muted);
+	font-family: var(--font-monospace);
+	font-size: 11.5px;
+	word-break: break-all;
+}
+
+.mdtoc-status-neutral {
+	color: var(--text-muted);
+}
+
+.mdtoc-help {
+	margin: 10px 0 18px 0;
+	padding: 12px 14px;
+	border-left: 3px solid var(--color-orange, #d29922);
+	background: var(--background-secondary);
+	border-radius: 0 var(--mdtoc-radius) var(--mdtoc-radius) 0;
+	font-size: 12.5px;
+	line-height: 1.5;
+}
+
+.mdtoc-help p {
+	margin: 0 0 6px 0;
+	color: var(--text-normal);
+}
+
+.mdtoc-help p:last-child {
+	margin-bottom: 0;
+}
+
+.mdtoc-help-note {
+	color: var(--text-muted) !important;
+	font-size: 12px;
+}
+
+/* Utility ---------------------------------------------------------- */
+
+.mdtoc-root .is-hidden,
+.mdtoc-picker .is-hidden,
+.mdtoc-folderlist.is-hidden {
+	display: none !important;
+}
+
+/* Narrow windows ---------------------------------------------------
+   Below this width the two-column options grid and the three-way source
+   control are what forces horizontal overflow, so both are unwound before
+   the modal is allowed to shrink further. */
+
+@media (max-width: 640px) {
+	.mdtoc-toggle-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.mdtoc-segmented {
+		flex-direction: column;
+	}
+
+	.mdtoc-seg-btn {
+		text-align: left;
+	}
+}
