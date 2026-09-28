@@ -139,3 +139,7 @@ npm test        # smoke tests for path handling and project-file generation
 To try it in a vault, copy `main.js`, `manifest.json` and `styles.css` into
 `<vault>/.obsidian/plugins/md-to-chm/` and enable the plugin in
 **Settings → Community plugins**.
+
+## License
+
+MIT © 2026 Kerekes Stefan
