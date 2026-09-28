@@ -238,6 +238,13 @@ export async function runExport(
 				);
 			}
 
+			if (rendered.unresolvedMedia.length > 0) {
+				log.warn(
+					`${file.path}: ${rendered.unresolvedMedia.length} image or media source(s) could not be found in the vault and were left out: ` +
+						rendered.unresolvedMedia.slice(0, 5).join(", ")
+				);
+			}
+
 			pages.push({
 				outputName,
 				title,
@@ -272,9 +279,18 @@ export async function runExport(
 			stats.assets = copied.paths.size;
 			stats.assetBytes = copied.bytes;
 			stats.missingAssets = copied.missing.length;
+
+			// Every reference failing is the shape of a whole export's images
+			// going missing, so it is called out rather than left among the
+			// per-file warnings.
+			if (copied.paths.size === 0) {
+				log.error(
+					`None of the ${allAssetRefs.size} referenced attachment(s) could be read from the vault, so the CHM will have no images.`
+				);
+			}
 		} else if (!opts.includeAttachments && allAssetRefs.size > 0) {
-			log.warn(
-				`${allAssetRefs.size} attachment(s) were referenced but "Include attachments" is off; they will be missing from the CHM.`
+			log.error(
+				`${allAssetRefs.size} attachment(s) were referenced but "Include attachments" is off, so the CHM will have no images. Turn it on and export again.`
 			);
 			stats.missingAssets = allAssetRefs.size;
 		}

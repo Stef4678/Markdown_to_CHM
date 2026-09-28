@@ -20,6 +20,12 @@ export interface RenderedBody {
 	assetRefs: string[];
 	/** Links whose target was not part of the export and were flattened. */
 	deadLinks: string[];
+	/**
+	 * Media sources that named a file the vault could not place. Reported rather
+	 * than dropped silently: a missing image is otherwise invisible until the
+	 * finished CHM is opened.
+	 */
+	unresolvedMedia: string[];
 }
 
 /** Attributes that mean something to Obsidian but nothing to MSHTML. */
@@ -267,24 +273,55 @@ export async function renderNote(
 
 	const assetRefs: string[] = [];
 	const deadLinks: string[] = [];
+	const unresolvedMedia: string[] = [];
+
+	const MEDIA = "img, source, video, audio, object, embed";
+
+	/** Point one attribute at its file, once assets are copied. */
+	const assign = (node: Element, attr: string, value: string): boolean => {
+		const vaultPath = resolveVaultPath(ctx, value, file.path);
+		if (!vaultPath) return false;
+
+		assetRefs.push(vaultPath);
+		node.setAttribute(attr, assetToken(vaultPath));
+		return true;
+	};
 
 	// Rewrite media first, so that links discovered inside embeds are handled
 	// even when the embed wrapper is replaced.
-	host.querySelectorAll("img, source, video, audio, object, embed").forEach((node) => {
+	const resolved = new Set<Element>();
+	host.querySelectorAll(MEDIA).forEach((node) => {
 		for (const attr of ["src", "data"]) {
 			const value = node.getAttribute(attr);
 			if (!value || isExternalSource(value)) continue;
 
-			const vaultPath = resolveVaultPath(ctx, value, file.path);
-			if (vaultPath) {
-				assetRefs.push(vaultPath);
-				// Replaced with a real relative path once assets are copied.
-				node.setAttribute(attr, assetToken(vaultPath));
-			} else if (value.startsWith("app://")) {
-				// An app:// URL means nothing once it leaves Obsidian.
-				node.removeAttribute(attr);
+			if (assign(node, attr, value)) {
+				resolved.add(node);
+				continue;
 			}
+
+			// An app:// URL means nothing once it leaves Obsidian, and a path
+			// the vault cannot place would only ship as a link to nowhere.
+			node.removeAttribute(attr);
+			if (!value.startsWith("app://")) unresolvedMedia.push(value);
 		}
+	});
+
+	// Obsidian hangs the link the note actually wrote on the embed wrapper —
+	// `![](attachments/photo.png)` puts it on the span, not on the `<img>`
+	// inside. That plain path is worth more than the app:// URL when the URL
+	// is one the vault cannot place, so it is used as the fallback.
+	//
+	// Restricted to media embeds: a note embed is the same span with a `.md`
+	// path, and following that would copy the note into the asset folder.
+	host.querySelectorAll(".internal-embed.media-embed[src]").forEach((wrapper) => {
+		const inner = Array.from(wrapper.querySelectorAll(MEDIA));
+		if (inner.length > 0 && inner.some((n) => resolved.has(n))) return;
+
+		const value = wrapper.getAttribute("src");
+		if (!value || isExternalSource(value)) return;
+
+		if (!assign(wrapper, "src", value)) unresolvedMedia.push(value);
 	});
 
 	// Internal links: point them at the exported page, or flatten them.
@@ -336,6 +373,7 @@ export async function renderNote(
 		headings,
 		assetRefs: Array.from(new Set(assetRefs)),
 		deadLinks: Array.from(new Set(deadLinks)),
+		unresolvedMedia: Array.from(new Set(unresolvedMedia)),
 	};
 }
 
