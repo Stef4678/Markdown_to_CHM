@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-md-to-chm",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Obsidian plugin that compiles notes into Compiled HTML Help (.chm) files",
 	"main": "main.js",
 	"scripts": {
