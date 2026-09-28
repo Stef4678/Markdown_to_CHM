@@ -20,6 +20,18 @@ intermediate build files for debugging:
 
 ![Settings tab — behaviour options: include attachments, generate the keyword index, open the CHM after building, and keep intermediate build files](assets/settings-options.png)
 
+## Install
+
+1. Download `main.js`, `manifest.json` and `styles.css` from the
+   [latest release](https://github.com/Stef4678/Markdown_to_CHM/releases/latest).
+2. Create the folder `<vault>/.obsidian/plugins/md-to-chm/` and put all three
+   files in it.
+3. Reload Obsidian, then enable **Markdown to CHM** under
+   Settings → Community plugins.
+
+The plugin is not in the community catalogue, so it is installed by hand. To
+build it yourself instead, see [Development](#development).
+
 ## Requirements
 
 **Windows only**, and it needs **HTML Help Workshop** — Microsoft's CHM compiler
