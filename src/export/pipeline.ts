@@ -405,7 +405,22 @@ export async function runExport(
 
 		await fs.promises.mkdir(opts.outputDir, { recursive: true });
 		const destination = path.join(opts.outputDir, chmFileName);
-		await fs.promises.copyFile(outcome.chmPath, destination);
+		try {
+			await fs.promises.copyFile(outcome.chmPath, destination);
+		} catch (err) {
+			// Windows reports a file that is open elsewhere as EBUSY, and the CHM
+			// viewer is exactly that: it holds the file it is displaying open. The
+			// raw error names the temp directory and says nothing about what to do.
+			const code = (err as { code?: string })?.code;
+			if (code === "EBUSY" || code === "EPERM" || code === "EACCES") {
+				const message =
+					`${chmFileName} could not be replaced because it is open in another program. ` +
+					`Close the CHM viewer, then export again.`;
+				log.error(message);
+				return { success: false, chmPath: null, message, stats, log };
+			}
+			throw err;
+		}
 
 		compiledChm = destination;
 		stats.chmBytes = fileSize(destination);

@@ -102,6 +102,35 @@ check(
 	appUrlToVaultPath("https://example.com/a.png", "C:\\Vault") === null
 );
 
+// Regression: Obsidian builds its resource URLs as `resourcePathPrefix + path`,
+// and that prefix is `app://<random 36-character token>/` while the path still
+// carries its drive letter. Treating a non-"local" host as proof that a
+// vault-relative path follows returned `C:/Users/...` verbatim, so the vault was
+// searched for a folder called "C:" and every image was dropped from the CHM.
+const TOKEN = "9f3c1d7a4b2e8c05a6d1f3b7c9e04a2d8b6f";
+check(
+	"decodes an absolute path under a token host",
+	appUrlToVaultPath(
+		`app://${TOKEN}/C:/Users/stef/Documents/Stef/Evernote%20Visuals/Octopus/attachments/img.png?1782504327255`,
+		"C:\\Users\\stef\\Documents\\Stef"
+	) === "Evernote Visuals/Octopus/attachments/img.png"
+);
+check(
+	"decodes an absolute path under an empty host",
+	appUrlToVaultPath("app:///C:/Vault/attachments/img.png?1", "C:\\Vault") ===
+		"attachments/img.png"
+);
+check(
+	"rejects an absolute path under a token host outside the vault",
+	appUrlToVaultPath(`app://${TOKEN}/C:/Elsewhere/x.png?1`, "C:\\Vault") ===
+		null
+);
+check(
+	"still reads a vault-relative path under a token host",
+	appUrlToVaultPath(`app://${TOKEN}/Guides/Setup.md?1`, "C:\\Vault") ===
+		"Guides/Setup.md"
+);
+
 // ---------------------------------------------------------------------
 section("resolveRelative");
 

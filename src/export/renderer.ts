@@ -47,11 +47,50 @@ function slugify(text: string): string {
 }
 
 /**
+ * Reduce a path that may be absolute to a vault-relative one.
+ *
+ * Separators arrive in either direction depending on platform and Obsidian
+ * version, so both sides are normalised to backslashes before comparing.
+ * Returns null for an absolute path that lies outside the vault.
+ */
+function toVaultRelative(
+	candidate: string,
+	vaultBasePath: string
+): string | null {
+	const normalised = candidate.replace(/\//g, "\\");
+	const base = vaultBasePath.replace(/\//g, "\\").replace(/\\+$/, "");
+
+	const isAbsolute =
+		/^[A-Za-z]:\\/.test(normalised) || normalised.startsWith("\\\\");
+
+	if (isAbsolute) {
+		if (base.length === 0) return null;
+		if (!normalised.toLowerCase().startsWith(base.toLowerCase() + "\\")) {
+			return null;
+		}
+		const rest = normalised.slice(base.length + 1).replace(/\\/g, "/");
+		return rest.length > 0 ? rest : null;
+	}
+
+	return normalised.replace(/\\/g, "/").replace(/^\/+/, "");
+}
+
+/**
  * Convert an Obsidian `app://` URL into a vault-relative path.
  *
- * Two shapes exist across Obsidian versions:
- *   app://<opaque-id>/<url-encoded vault path>?<mtime>
- *   app://local/<absolute filesystem path>?<mtime>
+ * Three shapes reach this on the desktop:
+ *   app://<opaque-token>/<absolute path>?<mtime>
+ *   app://local/<absolute path>?<mtime>
+ *   app://<vault-id>/<vault-relative path>?<mtime>
+ *
+ * The host is not a reliable signal for what follows it. Obsidian builds its
+ * resource URLs as `resourcePathPrefix + <path with the file:/// prefix cut
+ * off>`, and that prefix is `app://<random 36-character token>/` — so the host
+ * is an opaque token and the remainder is still an absolute path. Reading the
+ * host instead cost a whole export's images: `C:/Users/...` was returned as if
+ * it were a vault path, and the lookup then searched for a folder called "C:"
+ * inside the vault. Which shape this is, is decided by looking at the
+ * remainder, not at the host.
  */
 export function appUrlToVaultPath(
 	url: string,
@@ -72,28 +111,11 @@ export function appUrlToVaultPath(
 		decoded = withoutScheme;
 	}
 
-	// First form: app://<opaque-id>/<vault-relative path>
+	// Everything after the host is either an absolute path or a vault path.
 	const firstSlash = decoded.indexOf("/");
 	if (firstSlash < 0) return null;
-	const host = decoded.slice(0, firstSlash);
-	const rest = decoded.slice(firstSlash + 1);
 
-	if (host !== "local") {
-		return rest.replace(/^\/+/, "");
-	}
-
-	// Second form: the remainder is an absolute path on disk. Base paths arrive
-	// with either separator depending on platform and Obsidian version, so both
-	// sides are normalised to backslashes before comparing.
-	const normalised = rest.replace(/\//g, "\\");
-	const base = vaultBasePath
-		.replace(/\//g, "\\")
-		.replace(/\\+$/, "");
-	if (base.length === 0) return null;
-	if (normalised.toLowerCase().startsWith(base.toLowerCase() + "\\")) {
-		return normalised.slice(base.length + 1).replace(/\\/g, "/");
-	}
-	return null;
+	return toVaultRelative(decoded.slice(firstSlash + 1), vaultBasePath);
 }
 
 /** Sources the CHM viewer loads for itself, so they are left as they are. */
