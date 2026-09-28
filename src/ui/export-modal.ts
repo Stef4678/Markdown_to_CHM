@@ -1,5 +1,6 @@
 import { App, Modal, Notice, TFile, setIcon } from "obsidian";
 import type MdToChmPlugin from "../main";
+import { DEFAULT_SETTINGS } from "../settings";
 import { FilePickerModal } from "./file-picker";
 import type { TocMode } from "../export/project-files";
 import { runExport } from "../export/pipeline";
@@ -607,7 +608,10 @@ export class ExportModal extends Modal {
 				includeAttachments: this.includeAttachments,
 				generateIndex: this.generateIndex,
 				keepStagingDir: this.keepStagingDir,
-				language: this.plugin.settings.language,
+				// An emptied Language field would otherwise reach the compiler as
+				// `Language=` in the .hhp, which it rejects.
+				language:
+					this.plugin.settings.language || DEFAULT_SETTINGS.language,
 			},
 			(step, current, total) => this.setProgress(step, current, total),
 			() => this.cancelled

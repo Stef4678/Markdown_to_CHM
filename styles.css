@@ -767,7 +767,11 @@
    Settings tab
    ------------------------------------------------------------------ */
 
-.mdtoc-settings .mdtoc-wide-input {
+/* Wide text inputs. The class is on the setting groups when the tab renders
+   from definitions (Obsidian 1.13+) and on the container in the display()
+   fallback, so one selector covers both. Every other control in this tab is a
+   dropdown or a toggle, which this cannot match. */
+.mdtoc-settings .setting-item-control input[type="text"] {
 	width: 100%;
 	min-width: 320px;
 }
