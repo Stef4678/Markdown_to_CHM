@@ -83,7 +83,9 @@ function resolveTitle(
 	headings: Array<{ level: number; text: string }>
 ): string {
 	const cache = app.metadataCache.getFileCache(file);
-	const fmTitle = cache?.frontmatter?.title;
+	// FrontMatterCache is an `any` index signature, so the read is taken as
+	// `unknown` and narrowed below rather than trusted.
+	const fmTitle: unknown = cache?.frontmatter?.title;
 	if (typeof fmTitle === "string" && fmTitle.trim().length > 0) {
 		return fmTitle.trim();
 	}
@@ -130,11 +132,11 @@ function collectKeywords(
 	if (frontmatter) {
 		// Both spellings appear in the wild, and either may be a single string
 		// rather than a list.
-		const fmTags = frontmatter.tags ?? frontmatter.tag;
+		const fmTags: unknown = frontmatter.tags ?? frontmatter.tag;
 		if (Array.isArray(fmTags)) fmTags.forEach((t) => add(into.tags, t));
 		else add(into.tags, fmTags);
 
-		const aliases = frontmatter.aliases ?? frontmatter.alias;
+		const aliases: unknown = frontmatter.aliases ?? frontmatter.alias;
 		if (Array.isArray(aliases)) aliases.forEach((a) => add(into.aliases, a));
 		else add(into.aliases, aliases);
 	}

@@ -277,7 +277,7 @@ export async function renderNote(
 	file: TFile,
 	markdown: string
 ): Promise<RenderedBody> {
-	const host = document.createElement("div");
+	const host = document.createDiv();
 	// Kept detached from the document: no layout cost, and nothing the user sees.
 
 	await MarkdownRenderer.render(
@@ -381,9 +381,10 @@ export async function renderNote(
 		// Target is not in this export — flatten to text so the CHM has no dead ends.
 		if (href.length > 0 && !href.startsWith("#")) {
 			deadLinks.push(href);
-			const span = document.createElement("span");
-			span.className = "mdtoc-dead-link";
-			span.textContent = node.textContent ?? href;
+			const span = document.createSpan({
+				cls: "mdtoc-dead-link",
+				text: node.textContent ?? href,
+			});
 			node.replaceWith(span);
 		}
 	});

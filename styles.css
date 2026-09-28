@@ -835,8 +835,9 @@
 	margin-bottom: 0;
 }
 
-.mdtoc-help-note {
-	color: var(--text-muted) !important;
+/* Scoped to a paragraph so it outranks the `.mdtoc-help p` rule above it. */
+.mdtoc-help p.mdtoc-help-note {
+	color: var(--text-muted);
 	font-size: 12px;
 }
 
@@ -845,7 +846,7 @@
 .mdtoc-root .is-hidden,
 .mdtoc-picker .is-hidden,
 .mdtoc-folderlist.is-hidden {
-	display: none !important;
+	display: none;
 }
 
 /* Narrow windows ---------------------------------------------------

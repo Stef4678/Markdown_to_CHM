@@ -61,7 +61,7 @@ export class MdToChmSettingTab extends PluginSettingTab {
 		this.renderCompilerStatus(statusEl);
 
 		if (!this.detectionDone) {
-			detectHhc().then((found) => {
+			void detectHhc().then((found) => {
 				this.detected = found;
 				this.detectionDone = true;
 				this.renderCompilerStatus(statusEl);

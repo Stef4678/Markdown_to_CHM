@@ -15,14 +15,16 @@ interface Preflight {
 	bytes: number;
 }
 
-/** Open a file or reveal it in the OS file manager via Electron's shell. */
-function shell(): {
+interface ElectronShell {
 	openPath: (p: string) => Promise<string>;
 	showItemInFolder: (p: string) => void;
-} | null {
+}
+
+/** Open a file or reveal it in the OS file manager via Electron's shell. */
+function shell(): ElectronShell | null {
 	try {
-		// eslint-disable-next-line @typescript-eslint/no-var-requires
-		const electron = require("electron");
+		// eslint-disable-next-line @typescript-eslint/no-require-imports -- Obsidian's API cannot open a file or reveal one in the file manager, so Electron's shell is the only route to either, and Obsidian publishes no typings for it.
+		const electron = require("electron") as { shell?: ElectronShell };
 		if (electron?.shell) return electron.shell;
 	} catch {
 		/* not running under Electron */
@@ -638,7 +640,7 @@ export class ExportModal extends Modal {
 
 	private setProgress(step: string, current: number, total: number): void {
 		const pct = total > 0 ? Math.round((current / total) * 100) : 0;
-		this.progressBarEl.style.width = `${Math.max(3, pct)}%`;
+		this.progressBarEl.setCssProps({ width: `${Math.max(3, pct)}%` });
 		this.progressTextEl.setText(
 			total > 1 ? `${step} — ${current}/${total}` : step
 		);
@@ -650,7 +652,7 @@ export class ExportModal extends Modal {
 		stats: ExportStats,
 		chmPath: string | null
 	): void {
-		this.progressBarEl.style.width = "100%";
+		this.progressBarEl.setCssProps({ width: "100%" });
 		this.resultEl.empty();
 		this.resultEl.removeClass("is-hidden");
 		this.resultEl.toggleClass("is-success", success);

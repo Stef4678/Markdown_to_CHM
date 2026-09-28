@@ -67,7 +67,10 @@ export default class MdToChmPlugin extends Plugin {
 	}
 
 	async loadSettings(): Promise<void> {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		// loadData() is typed `any`; the stored file is user-editable, so it is
+		// treated as a partial and anything missing falls back to the defaults.
+		const stored = (await this.loadData()) as Partial<MdToChmSettings> | null;
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, stored ?? {});
 	}
 
 	async saveSettings(): Promise<void> {
