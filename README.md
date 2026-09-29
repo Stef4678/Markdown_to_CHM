@@ -152,6 +152,21 @@ To try it in a vault, copy `main.js`, `manifest.json` and `styles.css` into
 `<vault>/.obsidian/plugins/md-to-chm/` and enable the plugin in
 **Settings → Community plugins**.
 
+## Releasing
+
+Bump `version` in `manifest.json`, add the same version to `versions.json`, then
+push a matching tag:
+
+```bash
+git tag 1.0.2
+git push origin 1.0.2
+```
+
+The [release workflow](.github/workflows/release.yml) then builds the plugin,
+publishes `main.js`, `manifest.json` and `styles.css` as release assets, and
+signs them with a build-provenance attestation. Anyone can verify a download
+with `gh attestation verify main.js --repo Stef4678/Markdown_to_CHM`.
+
 ## License
 
 MIT © 2026 Kerekes Stefan
